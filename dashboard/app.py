@@ -188,7 +188,7 @@ def render_navigation():
     for i, (icon, name) in enumerate(pages):
         with cols[i]:
             is_current = name == st.session_state.current_page
-            if st.button(f"{icon} {name}", key=f"nav_{name}", use_container_width=True,
+            if st.button(f"{icon} {name}", key=f"nav_{name}", width="stretch",
                          type="primary" if is_current else "secondary"):
                 if not is_current:
                     navigate_to(name)
@@ -223,7 +223,7 @@ with st.sidebar:
         st.markdown(f"**Mode:** {st.session_state.interface_mode}")
 
         st.markdown("---")
-        if st.button("🔄 Regenerate Data", use_container_width=True):
+        if st.button("🔄 Regenerate Data", width="stretch"):
             st.cache_resource.clear()
             st.session_state.data_ready = False
             st.rerun()
@@ -237,12 +237,12 @@ if not st.session_state.data_ready:
     """, unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
-        if st.button("🚀 Initialize Mission Control", type="primary", use_container_width=True):
+        if st.button("🚀 Initialize Mission Control", type="primary", width="stretch"):
             generate_data()
             st.rerun()
     with col2:
         sat_count = st.number_input("Fleet Size", 1, 50, 10)
-        if st.button("⚙️ Custom Initialize", use_container_width=True):
+        if st.button("⚙️ Custom Initialize", width="stretch"):
             with st.spinner(f"Initializing {sat_count} satellite fleet..."):
                 st.session_state.df = engines["simulator"].generate_anomaly_scenario(
                     satellite_count=sat_count, readings=300
@@ -256,7 +256,7 @@ if not st.session_state.data_ready:
     registry_df = pd.DataFrame(st.session_state.registry)
     if not registry_df.empty:
         st.dataframe(registry_df[["satellite_id", "name", "mission_type", "orbit_type", "status"]],
-                     use_container_width=True, hide_index=True)
+                     width="stretch", hide_index=True)
 
 else:
     df = st.session_state.df
@@ -307,19 +307,19 @@ else:
         with col1:
             st.plotly_chart(
                 StatusCharts.gauge_chart(avg_health, "Fleet Average Health"),
-                use_container_width=True,
+                width="stretch",
             )
         with col2:
             dist_data = {"Excellent": excellent, "Good": good, "Warning": warning, "Critical": critical}
             st.plotly_chart(
                 CircularCharts.donut_chart(dist_data, "Health Distribution", f"{avg_health}%"),
-                use_container_width=True,
+                width="stretch",
             )
         with col3:
             health_scores_map = {h["satellite_id"]: h["score"] for h in fleet_health[:10]}
             st.plotly_chart(
                 StatusCharts.progress_bars(health_scores_map, "Top 10 Health Scores"),
-                use_container_width=True,
+                width="stretch",
             )
         with col4:
             st.markdown("### Quick Stats")
@@ -330,7 +330,7 @@ else:
 
         st.markdown("### Fleet Telemetry Table")
         fleet_df = pd.DataFrame(fleet_health)
-        st.dataframe(fleet_df, use_container_width=True, hide_index=True)
+        st.dataframe(fleet_df, width="stretch", hide_index=True)
 
     # ── LIVE MONITOR ──
     elif page == "Live Monitor":
@@ -344,8 +344,8 @@ else:
         with col3: stream_batch = st.number_input("Batch Size", 10, 500, 100, 10)
         with col4:
             st.markdown("<br>", unsafe_allow_html=True)
-            start_btn = st.button("▶ Start Stream", type="primary", use_container_width=True)
-            stop_btn = st.button("⏹ Stop Stream", use_container_width=True)
+            start_btn = st.button("▶ Start Stream", type="primary", width="stretch")
+            stop_btn = st.button("⏹ Stop Stream", width="stretch")
 
         if start_btn:
             try:
@@ -407,37 +407,37 @@ else:
             st.markdown(f"**From:** {sat_df['timestamp'].min()}")
         with col3:
             st.plotly_chart(StatusCharts.health_gauge(health["overall_score"], selected_sat),
-                            use_container_width=True)
+                            width="stretch")
 
         tabs = st.tabs(["Power & Thermal", "Communications", "Navigation & Orbit", "Raw Data"])
         with tabs[0]:
             c1, c2 = st.columns(2)
             with c1:
                 st.plotly_chart(TimeSeriesCharts.line_chart(sat_df, "battery_pct", "Battery Level", selected_sat),
-                                use_container_width=True)
+                                width="stretch")
             with c2:
                 st.plotly_chart(TimeSeriesCharts.line_chart(sat_df, "temperature_c", "Temperature", selected_sat),
-                                use_container_width=True)
+                                width="stretch")
             st.plotly_chart(TimeSeriesCharts.multi_line_chart(
                 sat_df, ["solar_voltage_v", "current_a"], "Solar Power System", selected_sat),
-                use_container_width=True)
+                width="stretch")
         with tabs[1]:
             c1, c2 = st.columns(2)
             with c1:
                 st.plotly_chart(TimeSeriesCharts.line_chart(sat_df, "signal_strength_dbm", "Signal Strength", selected_sat),
-                                use_container_width=True)
+                                width="stretch")
             with c2:
                 st.plotly_chart(TimeSeriesCharts.area_chart(sat_df, "cpu_usage_pct", "CPU Usage", selected_sat),
-                                use_container_width=True)
+                                width="stretch")
             st.plotly_chart(TimeSeriesCharts.line_chart(sat_df, "memory_usage_pct", "Memory Usage", selected_sat),
-                            use_container_width=True)
+                            width="stretch")
         with tabs[2]:
-            st.plotly_chart(MissionCharts.ground_track(sat_df, selected_sat), use_container_width=True)
+            st.plotly_chart(MissionCharts.ground_track(sat_df, selected_sat), width="stretch")
             st.plotly_chart(TimeSeriesCharts.multi_line_chart(
                 sat_df, ["altitude_km", "velocity_kms"], "Orbit Parameters", selected_sat),
-                use_container_width=True)
+                width="stretch")
         with tabs[3]:
-            st.dataframe(sat_df.describe(), use_container_width=True)
+            st.dataframe(sat_df.describe(), width="stretch")
 
     # ── ANALYTICS ──
     elif page == "Analytics":
@@ -457,18 +457,18 @@ else:
                                "Std Dev": f"{col_stats.std_dev:.2f}", "Min": f"{col_stats.min:.2f}",
                                "Max": f"{col_stats.max:.2f}", "Skewness": f"{col_stats.skewness:.2f}"})
         if stats_data:
-            st.dataframe(pd.DataFrame(stats_data), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(stats_data), width="stretch", hide_index=True)
 
         c1, c2 = st.columns(2)
         with c1:
             st.plotly_chart(DistributionCharts.histogram(sat_df, "battery_pct", "Battery Distribution"),
-                            use_container_width=True)
+                            width="stretch")
         with c2:
             st.plotly_chart(DistributionCharts.histogram(sat_df, "temperature_c", "Temperature Distribution"),
-                            use_container_width=True)
+                            width="stretch")
 
         if not correlation.empty:
-            st.plotly_chart(RelationshipCharts.correlation_heatmap(correlation), use_container_width=True)
+            st.plotly_chart(RelationshipCharts.correlation_heatmap(correlation), width="stretch")
 
         st.markdown("### Key Relationships")
         for rel in relationships[:6]:
@@ -494,7 +494,7 @@ else:
         if anomalies:
             anomaly_df = pd.DataFrame(anomalies)
             st.dataframe(anomaly_df[["type", "timestamp", "metric", "value", "unit", "severity"]],
-                         use_container_width=True, hide_index=True)
+                         width="stretch", hide_index=True)
 
     # ── AI INSIGHTS ──
     elif page == "AI Insights":
@@ -554,13 +554,13 @@ else:
         with c1:
             csv_data = engines["reporter"].get_csv_bytes(sat_df)
             st.download_button("📥 Download CSV", csv_data, f"{selected_sat}_telemetry.csv",
-                               "text/csv", use_container_width=True)
+                               "text/csv", width="stretch")
         with c2:
             stats_df = pd.DataFrame(engines["analytics"].compute_statistics(sat_df).get("summary", {})).T
             excel_bytes = engines["reporter"].get_excel_bytes({"Telemetry": sat_df, "Statistics": stats_df})
             st.download_button("📥 Download Excel", excel_bytes, f"{selected_sat}_report.xlsx",
                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                               use_container_width=True)
+                               width="stretch")
         with c3:
             health = engines["health"].compute_health(sat_df)
             stats = engines["analytics"].compute_statistics(sat_df)
@@ -568,10 +568,10 @@ else:
                 selected_sat, sat_df, stats, health, {}, "")
             json_bytes = engines["reporter"].get_json_bytes(report)
             st.download_button("📥 Download JSON", json_bytes, f"{selected_sat}_report.json",
-                               "application/json", use_container_width=True)
+                               "application/json", width="stretch")
 
         st.markdown("### Data Preview")
-        st.dataframe(sat_df.head(50), use_container_width=True, hide_index=True)
+        st.dataframe(sat_df.head(50), width="stretch", hide_index=True)
 
     # ── REGISTER SATELLITE ──
     elif page == "Register Satellite":
@@ -594,7 +594,7 @@ else:
                     launch_date = st.date_input("Launch Date")
                     description = st.text_area("Description", placeholder="Mission description...")
 
-                submitted = st.form_submit_button("✅ Register Satellite", type="primary", use_container_width=True)
+                submitted = st.form_submit_button("✅ Register Satellite", type="primary", width="stretch")
                 if submitted:
                     if not sat_id or not sat_name:
                         st.error("Satellite ID and Name are required.")
@@ -627,7 +627,7 @@ else:
                 reg_df = pd.DataFrame(registry)
                 st.dataframe(reg_df[["satellite_id", "name", "mission_type", "orbit_type",
                                      "altitude_km", "status", "launch_date"]],
-                             use_container_width=True, hide_index=True)
+                             width="stretch", hide_index=True)
 
                 st.markdown("### Update Satellite Status")
                 col_sel, col_status = st.columns(2)
