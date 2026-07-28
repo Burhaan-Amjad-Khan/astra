@@ -1,6 +1,10 @@
 # ASTRA - Advanced Satellite Telemetry & Real-time Analytics
 
-ISRO-grade satellite telemetry intelligence platform for processing, analyzing, visualizing, and explaining satellite telemetry data.
+**ISRO Mission Control Grade** | Satellite Telemetry Intelligence Platform
+
+> Processing, analyzing, visualizing, and explaining satellite telemetry data at scale.
+
+[![GitHub](https://img.shields.io/badge/GitHub-Burhaan--Amjad--Khan%2Fastra-blue)](https://github.com/Burhaan-Amjad-Khan/astra)
 
 ## Architecture
 
