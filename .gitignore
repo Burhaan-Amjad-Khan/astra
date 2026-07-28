@@ -34,3 +34,4 @@ Thumbs.db
 
 # Streamlit
 .streamlit/secrets.toml
+data/satellite_registry.json
