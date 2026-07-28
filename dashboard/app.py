@@ -116,6 +116,8 @@ if "registry" not in st.session_state:
     st.session_state.registry = load_satellite_registry()
 if "interface_mode" not in st.session_state:
     st.session_state.interface_mode = "Engineer"
+if "theme" not in st.session_state:
+    st.session_state.theme = "Dark"
 
 
 def navigate_to(page):
@@ -215,12 +217,43 @@ with st.sidebar:
 
     st.markdown("---")
 
+    theme_choice = st.radio(
+        "Theme",
+        ["Dark", "Light"],
+        index=0 if st.session_state.theme == "Dark" else 1,
+        key="theme_selector",
+        help="Switch between Dark and Light theme",
+    )
+    if theme_choice != st.session_state.theme:
+        st.session_state.theme = theme_choice
+        st.rerun()
+
+    if st.session_state.theme == "Dark":
+        st.markdown("""
+        <style>
+        .stApp { background-color: #0E1117; }
+        .stMarkdown, .stText, p, span, label, div { color: #FAFAFA !important; }
+        .stMetric label, .stMetric div[data-testid="stMetricValue"] { color: #FAFAFA !important; }
+        </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <style>
+        .stApp { background-color: #FFFFFF; }
+        .stMarkdown, .stText, p, span, label, div { color: #0E1117 !important; }
+        .stMetric label, .stMetric div[data-testid="stMetricValue"] { color: #0E1117 !important; }
+        </style>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
     if st.session_state.data_ready:
         df = st.session_state.df
         satellite_ids = sorted(df["satellite_id"].unique())
         st.markdown(f"**Fleet:** {len(satellite_ids)} sats")
         st.markdown(f"**Records:** {len(df):,}")
         st.markdown(f"**Mode:** {st.session_state.interface_mode}")
+        st.markdown(f"**Theme:** {st.session_state.theme}")
 
         st.markdown("---")
         if st.button("🔄 Regenerate Data", width="stretch"):
