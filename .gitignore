@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Data
+data/*.duckdb
+data/*.duckdb.wal
+data/*.log
+data/reports/*
+data/exports/*
+!data/.gitkeep
+!data/reports/.gitkeep
+!data/exports/.gitkeep
+
+# Environment
+.env
+.venv/
+venv/
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml

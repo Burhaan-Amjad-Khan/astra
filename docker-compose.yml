@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  astra-api:
+    build: .
+    container_name: astra-api
+    command: python main.py api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+
+  astra-dashboard:
+    build: .
+    container_name: astra-dashboard
+    command: python main.py dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    depends_on:
+      - astra-api
+    restart: unless-stopped
