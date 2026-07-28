@@ -106,6 +106,7 @@ if "data_ready" not in st.session_state:
     st.session_state.registry = load_satellite_registry()
     st.session_state.page_history = []
     st.session_state.current_page = "Mission Overview"
+    st.session_state.interface_mode = "Engineer"
 
 if "page_history" not in st.session_state:
     st.session_state.page_history = []
@@ -113,6 +114,8 @@ if "current_page" not in st.session_state:
     st.session_state.current_page = "Mission Overview"
 if "registry" not in st.session_state:
     st.session_state.registry = load_satellite_registry()
+if "interface_mode" not in st.session_state:
+    st.session_state.interface_mode = "Engineer"
 
 
 def navigate_to(page):
@@ -181,24 +184,49 @@ def render_navigation():
         ("🔧", "Register Satellite"),
     ]
 
-    current_idx = 0
-    for i, (icon, name) in enumerate(pages):
-        if name == st.session_state.current_page:
-            current_idx = i
-            break
-
     cols = st.columns(len(pages))
     for i, (icon, name) in enumerate(pages):
         with cols[i]:
-            button_style = "primary" if name == st.session_state.current_page else "secondary"
+            is_current = name == st.session_state.current_page
             if st.button(f"{icon} {name}", key=f"nav_{name}", use_container_width=True,
-                         type=button_style if name == st.session_state.current_page else "secondary"):
-                st.session_state.current_page = name
+                         type="primary" if is_current else "secondary"):
+                if not is_current:
+                    navigate_to(name)
                 st.rerun()
 
 
 # ── MAIN APP ──
 render_header()
+
+# ── Sidebar ──
+with st.sidebar:
+    st.markdown("## 🛰️ ASTRA")
+    st.markdown("---")
+
+    interface_mode = st.radio(
+        "Interface Mode",
+        ["Engineer", "Scientist", "Student"],
+        index=["Engineer", "Scientist", "Student"].index(st.session_state.interface_mode),
+        key="mode_selector",
+        help="Engineer: Full technical details | Scientist: Research analytics | Student: Simple explanations",
+    )
+    if interface_mode != st.session_state.interface_mode:
+        st.session_state.interface_mode = interface_mode
+
+    st.markdown("---")
+
+    if st.session_state.data_ready:
+        df = st.session_state.df
+        satellite_ids = sorted(df["satellite_id"].unique())
+        st.markdown(f"**Fleet:** {len(satellite_ids)} sats")
+        st.markdown(f"**Records:** {len(df):,}")
+        st.markdown(f"**Mode:** {st.session_state.interface_mode}")
+
+        st.markdown("---")
+        if st.button("🔄 Regenerate Data", use_container_width=True):
+            st.cache_resource.clear()
+            st.session_state.data_ready = False
+            st.rerun()
 
 if not st.session_state.data_ready:
     st.markdown("""
@@ -500,12 +528,20 @@ else:
         }
 
         t1, t2, t3 = st.tabs(["Engineer View", "Scientist View", "Student View"])
+        mode_idx = {"Engineer": 0, "Scientist": 1, "Student": 2}
+        default_tab = mode_idx.get(st.session_state.interface_mode, 0)
         with t1:
-            st.code(engines["explainer"].explain(explanation_data, "engineer"))
+            if default_tab == 0 or st.session_state.get("_tab_clicked"):
+                st.markdown(f"**Current Mode: Engineer** (change in sidebar)")
+                st.code(engines["explainer"].explain(explanation_data, "engineer"))
         with t2:
-            st.code(engines["explainer"].explain(explanation_data, "scientist"))
+            if default_tab == 1 or st.session_state.get("_tab_clicked"):
+                st.markdown(f"**Current Mode: Scientist** (change in sidebar)")
+                st.code(engines["explainer"].explain(explanation_data, "scientist"))
         with t3:
-            st.markdown(engines["explainer"].explain(explanation_data, "student").replace("\n", "\n\n"))
+            if default_tab == 2 or st.session_state.get("_tab_clicked"):
+                st.markdown(f"**Current Mode: Student** (change in sidebar)")
+                st.markdown(engines["explainer"].explain(explanation_data, "student").replace("\n", "\n\n"))
 
     # ── REPORTS ──
     elif page == "Reports":
