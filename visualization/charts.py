@@ -29,10 +29,8 @@ def _layout(fig, title, xlabel="", ylabel="", height=None, width=None):
         xaxis_title=xlabel,
         yaxis_title=ylabel,
         template="plotly_dark",
-        height=height or VIZ_CONFIG["height"],
-        width=width or VIZ_CONFIG["width"],
-        hovermode="x unified",
-        margin=dict(l=60, r=30, t=60, b=50),
+        height=height,
+        margin=dict(l=40, r=20, t=60, b=40),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
     return fig
@@ -341,7 +339,7 @@ class StatusCharts:
                 },
             },
         ))
-        fig.update_layout(height=350, width=400)
+        fig.update_layout(height=250)
         return fig
 
     @staticmethod
@@ -437,7 +435,7 @@ class MissionCharts:
                 xaxis_title="X (km)", yaxis_title="Y (km)", zaxis_title="Z (km)",
                 aspectmode="data",
             ),
-            height=700, width=800,
+            height=500,
         )
         return _layout(fig, title)
 
@@ -466,5 +464,5 @@ class MissionCharts:
             showland=True, landcolor="rgb(50,50,50)",
             showocean=True, oceancolor="rgb(10,10,30)",
         )
-        fig.update_layout(height=600, width=800)
+        fig.update_layout(height=400)
         return _layout(fig, title)
